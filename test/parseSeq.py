@@ -30,17 +30,17 @@ def parseSeqFile(address, destination):
             lineSeqIdx = lineIdx+1
             currentSeq = ''
             currentGeneStartIndex = line.find('[gene=')
-            currentProteinStartIndex = line.find('[gprotein=')
+            currentProteinStartIndex = line.find('[protein=')
             currentExceptionStartIndex = line.find('[exception=')
             currentProteinIDStartIndex = line.find('[protein_id=')
             currentLocationStartIndex = line.find('[location=')
             currentgbKeyStartIndex = line.find('[gbkey==')
-            currentGene = line[(currentGeneStartIndex + 1):(currentProteinStartIndex-3)]
-            currentProtein = line[(currentProteinStartIndex + 1):(currentExceptionStartIndex-3)]
+            currentGene = line[(currentGeneStartIndex + 1):(currentProteinStartIndex-2)][5:]
+            currentProtein = line[(currentProteinStartIndex + 1):(currentExceptionStartIndex-2)][8:]
             currentProteinID = line[(
-                currentProteinIDStartIndex + 1):(currentLocationStartIndex-3)]
+                currentProteinIDStartIndex + 1):(currentLocationStartIndex-2)][11:]
             currentLocation = line[(
-                currentLocationStartIndex + 1):(currentgbKeyStartIndex-3)]
+                currentLocationStartIndex + 1):(currentgbKeyStartIndex-2)][9:-10]
             while meetingNext == False:
                 if lineSeqIdx+1 < len(lines) and lines[lineSeqIdx][0] != ">":
                     currentSeq += lines[lineSeqIdx][:-2]
@@ -50,6 +50,7 @@ def parseSeqFile(address, destination):
             currentDF.loc[seqCounter] = [currentGene, currentProtein,
                                          currentProteinID, currentLocation, currentSeq]
             seqCounter += 1
+    print(currentDF)
     currentDF.to_csv(destination)
     return currentDF
 
