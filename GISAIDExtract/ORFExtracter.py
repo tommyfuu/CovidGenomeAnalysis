@@ -8,12 +8,12 @@ Reference   : http://biopython.org/DIST/docs/tutorial/Tutorial.html#sec380
 import pandas as pd
 from Bio import SeqIO
 
-ORFDict = {"ORF1a": (100, 400, 13200, 13600),
-           "ORF1b": (13200, 13600, 21200, 21700),
-           "ORFS": (21200, 21700, 25200, 25500),
-           "ORF3a": (25200, 25500, 26000, 26500),
+ORFDict = {"ORF1a": (0, 400, 13000, 13600),
+           "ORF1b": (13000, 13600, 21000, 21700),
+           "ORFS": (21000, 21700, 25000, 25700),
+           "ORF3a": (25000, 25700, 25800, 26500),
            # "ORF3a-8": (25200, 25500, 28000, 28500),
-           "ORFN": (28000, 28500, 29200, 30000)}
+           "ORFN": (28000, 28700, 28700, 30000)}
 
 
 def fastaSeqExtract(fastaAddress):
@@ -85,4 +85,5 @@ def wrapOrfPrint(fastaAddress):
                 currentDF.loc[seqCounter] = [ascensionNum, location,
                                              date, orf, str(seq[start:end])]
                 seqCounter += 1
+
     return currentDF
