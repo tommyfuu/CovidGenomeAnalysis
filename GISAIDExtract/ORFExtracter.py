@@ -3,6 +3,8 @@ Author      : Tom Fu
 Date        : 2020 Oct 15
 Description : ORFExtracter.py for covid biomakerspace project
 Reference   : http://biopython.org/DIST/docs/tutorial/Tutorial.html#sec380
+ORF Ref     : https://www.ncbi.nlm.nih.gov/labs/gquery/all/?term=covid+19&utm_source=Datasets
+ORFFutureRef: https://virologyj.biomedcentral.com/articles/10.1186/s12985-020-01402-1#Sec6
 """
 
 import pandas as pd
@@ -86,4 +88,37 @@ def wrapOrfPrint(fastaAddress):
                                              date, orf, str(seq[start:end])]
                 seqCounter += 1
 
+    return currentDF
+
+
+def wrapOrfPrintAll(fastaAddress):
+    """print approximate orf info of the current covid sequence and save into a pandas df"""
+    location, ascensionNum, date, seq = fastaSeqExtract(fastaAddress)
+    currentDF = pd.DataFrame(
+        columns=['ascensionNum', 'location', 'date', 'orf', 'sequence'])
+    print("Info of the current strain:")
+    print("Ascension #: ", ascensionNum)
+    print("Location: ", location)
+    print("Submission date: ", date)
+    orf_list = find_orfs_with_trans(seq)
+    seqCounter = 0
+    for start, end, strand, pro in orf_list:
+        for orf, startEndPairs in ORFDict.items():
+            if orf == "ORF3a-8" and ((start in range(startEndPairs[0], startEndPairs[1])) or (end in range(startEndPairs[2], startEndPairs[3]))):
+                print("Current ORF", orf)
+                print(
+                    "%s...%s - length %i, strand %i, %i:%i"
+                    % (pro[:30], pro[-3:], len(pro), strand, start, end)
+                )
+            elif (start in range(startEndPairs[0], startEndPairs[1])) and (end in range(startEndPairs[2], startEndPairs[3])):
+                print("Current ORF", orf)
+                print(
+                    "%s...%s - length %i, strand %i, %i:%i"
+                    % (pro[:30], pro[-3:], len(pro), strand, start, end)
+                )
+            else:
+                orf = "-"
+            currentDF.loc[seqCounter] = [ascensionNum, location,
+                                         date, orf, str(seq[start:end])]
+            seqCounter += 1
     return currentDF
