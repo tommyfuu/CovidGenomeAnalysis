@@ -9,6 +9,7 @@ ORFFutureRef: https://virologyj.biomedcentral.com/articles/10.1186/s12985-020-01
 
 import pandas as pd
 from Bio import SeqIO
+from Bio import pairwise2
 
 ORFDict = {"ORF1a": (0, 400, 13000, 13600),
            "ORF1b": (13000, 13600, 21000, 21700),
@@ -16,6 +17,7 @@ ORFDict = {"ORF1a": (0, 400, 13000, 13600),
            "ORF3a": (25000, 25700, 25800, 26500),
            # "ORF3a-8": (25200, 25500, 28000, 28500),
            "ORFN": (28000, 28700, 28700, 30000)}
+refFasta = "./EPI_ISL_402124.fasta"
 
 
 def fastaSeqExtract(fastaAddress):
@@ -91,6 +93,27 @@ def wrapOrfPrint(fastaAddress):
     return currentDF
 
 
+def wrapOrfClean(fastaAddress):
+    """print approximate orf info of the current covid sequence and save into a pandas df"""
+    location, ascensionNum, date, seq = fastaSeqExtract(fastaAddress)
+    currentDF = pd.DataFrame(
+        columns=['ascensionNum', 'location', 'date', 'orf', 'sequence'])
+    orf_list = find_orfs_with_trans(seq)
+    seqCounter = 0
+    for start, end, strand, pro in orf_list:
+        for orf, startEndPairs in ORFDict.items():
+            if orf == "ORF3a-8" and ((start in range(startEndPairs[0], startEndPairs[1])) or (end in range(startEndPairs[2], startEndPairs[3]))):
+                currentDF.loc[seqCounter] = [ascensionNum, location,
+                                             date, orf, str(seq[start:end])]
+                seqCounter += 1
+            elif (start in range(startEndPairs[0], startEndPairs[1])) and (end in range(startEndPairs[2], startEndPairs[3])):
+                currentDF.loc[seqCounter] = [ascensionNum, location,
+                                             date, orf, str(seq[start:end])]
+                seqCounter += 1
+
+    return currentDF
+
+
 def wrapOrfPrintAll(fastaAddress):
     """print approximate orf info of the current covid sequence and save into a pandas df"""
     location, ascensionNum, date, seq = fastaSeqExtract(fastaAddress)
@@ -122,3 +145,23 @@ def wrapOrfPrintAll(fastaAddress):
                                          date, orf, str(seq[start:end])]
             seqCounter += 1
     return currentDF
+
+
+def orfAlignScore(fastaAddress, scoreDict={}):
+    refDF = wrapOrfClean(refFasta)
+    refDict = {}
+    for index, row in refDF.iterrows():
+        refDict.update({row['orf']: row['sequence']})
+    currentDF = wrapOrfClean(fastaAddress)
+    for index, row in currentDF.iterrows():
+        if row['orf'] in refDict:
+            currentOrf = row['orf']
+            currentAscensionNum = row['ascensionNum']
+            currentLocation = row['location']
+            currentSeq = row['sequence']
+            currentRefSeq = refDict[currentOrf]
+            currentScore = pairwise2.align.globalxx(
+                currentSeq, currentRefSeq, score_only=True)
+            scoreDict.update(
+                {currentOrf: (currentScore, currentLocation, currentAscensionNum)})
+    return scoreDict
