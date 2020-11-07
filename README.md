@@ -7,6 +7,7 @@ Covid genome analysis project at the HMC BioMakerspace. Using machine learning t
 The working python files are ORFExtractor.py and scaleORFExtract.py, each responsible for different things.
 
 **ORFExtractor.py** is where we can take in an input fasta file (example file see 'GISAIDExtract/EPI_ISL_402124.fasta') and output the rough orf and alignment score with the reference file.
+
 **scaleORFExtract.py** is where we deal with the giant fasta file. You might have downloaded a giant fasta file at a later day than me. For me, I have it as 'GISAIDExtract/sequences_2020-10-29_07-32.fasta', which I stored at the top of the file as a variable **BigFastaAddress** - you can change it as you need. This file contains one function **scaleOrfAlignScore(BigFastaAddress, scoreDict={})** that takes in the big fasta file and an empty dictionary of scores. The keys of the scoreDict will be the orfs available, and the values attached to each key will be all such orfs in the sequences that we looped through and the alignment scores achieved by aligning this orf with the reference rf, and the location and the ascension number this orf is from. An example of this is shown below (with the first 5 sequences in the big fasta file):
 
 ```
