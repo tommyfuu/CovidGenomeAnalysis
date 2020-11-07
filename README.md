@@ -24,6 +24,7 @@ From this dictionary, we extract information for each orf - for each orf, we mak
 4. Building clustering model (pair programming!)
 5. Possibly incorporating muscle into our project if popssible
 6. Look for better orf prediction methods and incorporate that into our model
+7. Correlation stuff
 
 ### Acknowledgement
 
@@ -31,7 +32,7 @@ Developers:\
 Tom Fu [(@tommyfuu)](https://github.com/tommyfuu)\
 Lucy Paddock [(@lucinda-paddock)](https://github.com/lucinda-paddock)\
 Liam Chalk [(@liamchalk00)](https://github.com/liamchalk00)\
-April Zhao
+April Zhao [(@abooli)](https://github.com/abooli)\
 
 Affiliation: Harvey Mudd College BioMakerspace (Polymerspace). \
 Faculty advisor: Dr. Dan Stoebel.

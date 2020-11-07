@@ -24,8 +24,11 @@ def scaleOrfAlignScore(BigFastaAddress, scoreDict={}):
     # starting to deal with the giant seq file
     raw = open(BigFastaAddress, 'r')
     lines = raw.readlines()
-    # for lineIdx in range(len(lines)):
-    for lineIdx in range(0, 10):
+    start = 0
+    end = 300000
+    interval = 50
+#     for lineIdx in range(len(lines)):
+    for lineIdx in range(start, end, interval):
         # info line: even
         if lineIdx % 2 == 0:
             currentInfo = lines[lineIdx][1:].split('/')
