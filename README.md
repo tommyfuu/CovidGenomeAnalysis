@@ -1,6 +1,10 @@
 # CovidGenomeAnalysis
+
 Covid genome analysis project at the HMC BioMakerspace. Using machine learning to investigate the pattern between location and covid sequences.
 
+### The GISAIDExtract Directory
+
+The working python file is ORFExtractor.py, where we can take in an input fasta file (example file see 'GISAIDExtract/EPI_ISL_402124.fasta') and output the rough orf and alignment score with the reference file.
 
 ### Acknowledgement
 
@@ -8,7 +12,7 @@ Developers:\
 Tom Fu [(@tommyfuu)](https://github.com/tommyfuu)\
 Lucy Paddock [(@lucinda-paddock)](https://github.com/lucinda-paddock)\
 Liam Chalk [(@liamchalk00)](https://github.com/liamchalk00)\
-April Zhao 
+April Zhao
 
 Affiliation: Harvey Mudd College BioMakerspace (Polymerspace). \
 Faculty advisor: Dr. Dan Stoebel.
