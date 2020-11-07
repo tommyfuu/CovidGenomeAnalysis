@@ -10,7 +10,7 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 # from Bio.Alphabet.IUPAC import ambiguous_dna
 
-BigFastaAddress = "/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/sequences_2020-10-29_07-32.fasta"
+BigFastaAddress = "sequences_2020-10-29_07-32.fasta"
 
 
 def scaleOrfAlignScore(BigFastaAddress, scoreDict={}):

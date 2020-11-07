@@ -8,7 +8,7 @@ The working python files are ORFExtractor.py and scaleORFExtract.py, each respon
 
 **ORFExtractor.py** is where we can take in an input fasta file (example file see 'GISAIDExtract/EPI_ISL_402124.fasta') and output the rough orf and alignment score with the reference file.
 
-**scaleORFExtract.py** is where we deal with the giant fasta file. You might have downloaded a giant fasta file at a later day than me. For me, I have it as 'GISAIDExtract/sequences_2020-10-29_07-32.fasta', which I stored at the top of the file as a variable **BigFastaAddress** - you can change it as you need. This file contains one function **scaleOrfAlignScore(BigFastaAddress, scoreDict={})** that takes in the big fasta file and an empty dictionary of scores. The keys of the scoreDict will be the orfs available, and the values attached to each key will be all such orfs in the sequences that we looped through and the alignment scores achieved by aligning this orf with the reference rf, and the location and the ascension number this orf is from. An example of this is shown below (with the first 5 sequences in the big fasta file):
+**scaleORFExtract.py** is where we deal with the giant covid fasta file. You might have downloaded a giant fasta file at a later day than me. For me, I have it as 'GISAIDExtract/sequences_2020-10-29_07-32.fasta', which I stored at the top of the file as a variable **BigFastaAddress** - you can change it as you need. This file contains one function **scaleOrfAlignScore(BigFastaAddress, scoreDict={})** that takes in the big fasta file and an empty dictionary of scores. The keys of the scoreDict will be the orfs available, and the values attached to each key will be all such orfs in the sequences that we looped through and the alignment scores achieved by aligning this orf with the reference rf, and the location and the ascension number this orf is from. An example of this is shown below (with the first 5 sequences in the big fasta file):
 
 ```
 {'ORF1a': [('IVDC-HB-01', 13230.0, 'Wuhan'), ('IVDC-HB-04', 13230.0, 'Wuhan'), ('IVDC-HB-05', 13230.0, 'Wuhan'), ('IPBCAMS-WH-01', 13227.0, 'Wuhan'), ('WIV04', 13230.0, 'Wuhan')], 'ORF1b': [('IVDC-HB-01', 8106.0, 'Wuhan'), ('IVDC-HB-04', 8106.0, 'Wuhan'), ('IVDC-HB-05', 8104.0, 'Wuhan'), ('IPBCAMS-WH-01', 8106.0, 'Wuhan'), ('WIV04', 8106.0, 'Wuhan')], 'ORFS': [('IVDC-HB-01', 3882.0, 'Wuhan'), ('IVDC-HB-04', 3882.0, 'Wuhan'), ('IVDC-HB-05', 3882.0, 'Wuhan'), ('IPBCAMS-WH-01', 3882.0, 'Wuhan'), ('WIV04', 3882.0, 'Wuhan')], 'ORF3a': [('IVDC-HB-01', 873.0, 'Wuhan'), ('IVDC-HB-04', 873.0, 'Wuhan'), ('IVDC-HB-05', 873.0, 'Wuhan'), ('IPBCAMS-WH-01', 873.0, 'Wuhan'), ('WIV04', 873.0, 'Wuhan')], 'ORFN': [('IVDC-HB-01', 1302.0, 'Wuhan'), ('IVDC-HB-04', 1301.0, 'Wuhan'), ('IVDC-HB-05', 1302.0, 'Wuhan'), ('IPBCAMS-WH-01', 1302.0, 'Wuhan'), ('WIV04', 1302.0, 'Wuhan')]}
@@ -18,7 +18,7 @@ From this dictionary, we extract information for each orf - for each orf, we mak
 
 ### Next steps
 
-1. When we download a new giant files, we decide what are new in the new giant fasta, and then update the scoreDict and csv files accordingly
+1. When we download a new giant Covid fasta file, we decide what are new in the new giant fasta, and then update the scoreDict and csv files accordingly
 2. Possibly automate step 1
 3. Normalize alignment scores
 4. Building clustering model (pair programming!)
