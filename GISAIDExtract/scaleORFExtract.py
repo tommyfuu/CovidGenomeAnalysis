@@ -14,6 +14,8 @@ BigFastaAddress = "/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAID
 
 
 def scaleOrfAlignScore(BigFastaAddress, scoreDict={}):
+    """Go through all the sequences of the giant fasta file, get the orf for each sequnece if any, 
+    align those orfs with reference orfs, then for each orf, save them in a specific csv file"""
     # get the reference seq
     refDF = wrapOrfClean(refFasta)
     refDict = {}
@@ -22,8 +24,8 @@ def scaleOrfAlignScore(BigFastaAddress, scoreDict={}):
     # starting to deal with the giant seq file
     raw = open(BigFastaAddress, 'r')
     lines = raw.readlines()
-    for lineIdx in range(len(lines)):
-        # for lineIdx in range(0, 10):
+    # for lineIdx in range(len(lines)):
+    for lineIdx in range(0, 10):
         # info line: even
         if lineIdx % 2 == 0:
             currentInfo = lines[lineIdx][1:].split('/')
@@ -37,6 +39,8 @@ def scaleOrfAlignScore(BigFastaAddress, scoreDict={}):
                 currentSeq, currentAscensionNum, currentLocation, currentYear)
             # get the scoreDict so far
             scoreDict = orfAlignScoreDF(refDict, currentOrfDF, scoreDict)
+            print(lineIdx)
+    print("scoreDict DONE")
     print(scoreDict)
     # go through the scoreDict and build alignment score dfs
     for orf, orfInfo in scoreDict.items():
@@ -45,23 +49,7 @@ def scaleOrfAlignScore(BigFastaAddress, scoreDict={}):
         currentCSVName = orf + 'AlignmentScore.csv'
         currentDF.to_csv(currentCSVName)
     return
-    # refDF = wrapOrfClean(refFasta)
-    # refDict = {}
-    # for index, row in refDF.iterrows():
-    #     refDict.update({row['orf']: row['sequence']})
-    # currentDF = wrapOrfClean(fastaAddress)
-    # for index, row in currentDF.iterrows():
-    #     if row['orf'] in refDict:
-    #         currentOrf = row['orf']
-    #         currentAscensionNum = row['ascensionNum']
-    #         currentLocation = row['location']
-    #         currentSeq = row['sequence']
-    #         currentRefSeq = refDict[currentOrf]
-    #         currentScore = pairwise2.align.globalxx(
-    #             currentSeq, currentRefSeq, score_only=True)
-    #         scoreDict.update(
-    #             {currentOrf: (currentScore, currentLocation, currentAscensionNum)})
-    # return scoreDict
+
 # def scaleExtract(fastaAddress):
 #     """extract location, ascensionNum, date, sequence info from gisaid fasta file"""
 #     raw = open(fastaAddress, 'r')

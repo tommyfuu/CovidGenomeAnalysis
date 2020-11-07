@@ -95,7 +95,7 @@ def wrapOrfPrint(fastaAddress):
 
 
 def wrapOrfClean(fastaAddress):
-    """print approximate orf info of the current covid sequence and save into a pandas df"""
+    """get a pd dataframe of the approximate orf info of the current covid sequence and do not print anything"""
     location, ascensionNum, date, seq = fastaSeqExtract(fastaAddress)
     currentDF = pd.DataFrame(
         columns=['ascensionNum', 'location', 'date', 'orf', 'sequence'])
@@ -116,6 +116,7 @@ def wrapOrfClean(fastaAddress):
 
 
 def wrapOrfSeqClean(seq, ascensionNum, location, date):
+    """Take in the sequence, the ascensionNum, the location, and the date of this sequence, return a pd dataframe of the approximate orf info of the current covid sequence"""
     currentDF = pd.DataFrame(
         columns=['ascensionNum', 'location', 'date', 'orf', 'sequence'])
     orf_list = find_orfs_with_trans(seq)
@@ -167,6 +168,9 @@ def wrapOrfPrintAll(fastaAddress):
 
 
 def orfAlignScore(fastaAddress, scoreDict={}):
+    """Take in an individual fastaAddress, get the orfs from the current fasta if any, align the sequence of each orf in this fasta with the corresponding sequence
+    in the reference fasta file, return scoreDict, a dictionary that stores the information with orf, location and ascensionNum of the covid strain, and the alignment
+    score"""
     refDF = wrapOrfClean(refFasta)
     refDict = {}
     for index, row in refDF.iterrows():
@@ -187,6 +191,9 @@ def orfAlignScore(fastaAddress, scoreDict={}):
 
 
 def orfAlignScoreDF(refDict, orfDF, scoreDict={}):
+    """Take in orfs from a specific sequence if any, align the sequence of each orf in this fasta with the corresponding sequence
+    in the reference fasta file, return scoreDict, a dictionary that stores the information with orf, location and ascensionNum of 
+    the covid strain, and the alignment score"""
     currentDF = orfDF
     for index, row in currentDF.iterrows():
         if row['orf'] in refDict:
