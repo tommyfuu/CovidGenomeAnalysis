@@ -20,7 +20,7 @@ From this dictionary, we extract information for each orf - for each orf, we mak
 
 1. When we download a new giant Covid fasta file, we decide what are new in the new giant fasta, and then update the scoreDict and csv files accordingly
 2. Possibly automate step 1
-3. Normalize alignment scores
+3. Normalize alignment scores (Z-score)
 4. Building clustering model (pair programming!)
 5. Possibly incorporating muscle into our project if popssible
 6. Look for better orf prediction methods and incorporate that into our model
