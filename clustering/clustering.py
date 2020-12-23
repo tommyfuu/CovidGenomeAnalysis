@@ -11,6 +11,8 @@ from sklearn.preprocessing import StandardScaler
 
 
 from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+
 import matplotlib.pyplot as plt
 
 address1 = 'outputs1107/ORF1a0300000AlignmentScore.csv'
@@ -47,16 +49,6 @@ def csvToScoreDict(addressL):
                 scoreDict[ascensionNumL[i]] = (scoreL[i],)
             else:
                 scoreDict[ascensionNumL[i]] += (scoreL[i],)
-        # mean = np.mean(scoreL)
-        # std = np.std(scoreL)
-        # if addressIndex == 0:
-        #     ZScoreMatrix = [[] for x in scoreL]
-        # print(len(scoreL))
-        # for index in range(len(scoreL)):
-        #     ZScore = (scoreL[index]-mean)/std
-        #     # ascensionNum = ascensionNumL[index]
-        #     ZScoreMatrix[index].append(ZScore)
-    #X = np.matrix(ZScoreMatrix)
     return scoreDict
 
 
@@ -75,10 +67,45 @@ def scoreDictToZMatrix(scoreDict):
 
     return scaler.transform(scoreMat)
 
+# def PCAZMatrix(ZMatrix):
 
-def kMeans(X):
+
+def PCAAnalysis(ZMatrix):
+
+    kmeansLabels = kMeans(ZMatrix, 4)
+    pca = PCA(n_components=2)
+    principalComponents = pca.fit_transform(ZMatrix)
+    principalComponents = principalComponents.tolist()
+    for i in range(len(principalComponents)):
+        principalComponents[i].append(kmeansLabels[i])
+    print(principalComponents[:2])
+    finalDf = pd.DataFrame(data=principalComponents, columns=[
+        'principal component 1', 'principal component 2', 'Batch'])
+
+    # finalDf = pd.concat([principalDf, df[['Batch']]], axis=1)
+    # print(finalDf)
+
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlabel('PC 1', fontsize=15)
+    ax.set_ylabel('PC 2', fontsize=15)
+    ax.set_title('Gusdon/2 component PCA', fontsize=20)
+    targets = [0, 1, 2, 3]
+    colors = ['r', 'b', 'y', 'green']
+    for target, color in zip(targets, colors):
+        indicesToKeep = finalDf['Batch'] == target
+        ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1'],
+                   finalDf.loc[indicesToKeep, 'principal component 2'], c=color, s=50)
+    ax.legend(targets)
+    ax.text(7.5, 7.5, "Colors/Batches")
+    ax.grid()
+    fig.show()
+    return
+
+
+def kMeans(X, components):
     ''''''
-    kmeans = KMeans(n_clusters=5, random_state=10).fit(X)
+    kmeans = KMeans(n_clusters=components, random_state=10).fit(X)
     return kmeans.labels_
 
 
