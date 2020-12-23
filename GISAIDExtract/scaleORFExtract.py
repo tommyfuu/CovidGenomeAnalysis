@@ -1,5 +1,5 @@
 """
-Author      : Tom Fu
+Author      : Tom Fu, Lucy Paddock
 Date        : 2020 Oct 30
 Description : scaleORFExtract.py for covid biomakerspace project
 """
