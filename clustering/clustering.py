@@ -82,14 +82,11 @@ def PCAAnalysis(ZMatrix):
     finalDf = pd.DataFrame(data=principalComponents, columns=[
         'principal component 1', 'principal component 2', 'Batch'])
 
-    # finalDf = pd.concat([principalDf, df[['Batch']]], axis=1)
-    # print(finalDf)
-
     fig = plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlabel('PC 1', fontsize=15)
     ax.set_ylabel('PC 2', fontsize=15)
-    ax.set_title('Gusdon/2 component PCA', fontsize=20)
+    ax.set_title('Covid Meeting', fontsize=20)
     targets = [0, 1, 2, 3]
     colors = ['r', 'b', 'y', 'green']
     for target, color in zip(targets, colors):
@@ -107,6 +104,9 @@ def kMeans(X, components):
     ''''''
     kmeans = KMeans(n_clusters=components, random_state=10).fit(X)
     return kmeans.labels_
+
+
+def gradientPCA(ZMatrix):
 
 
 def ZScore(scoreDict):
