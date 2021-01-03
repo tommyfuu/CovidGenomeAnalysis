@@ -22,14 +22,14 @@ def readLocation():
     # index = 0
     for fileName in alignScores:
         tempdf = pd.read_csv(fileName)
-        outfileName = "relativeDist" + fileName
+        outfileName = "relativeDistAll" + fileName
         # initialize
         geoLocation = []
         relativeDistance = []
         ascensionNumL = []
         # get relative distance
-        for index in range(1000):
-            # for index in range(len(tempdf["Location"])):
+        # for index in range(1000):
+        for index in range(len(tempdf["Location"])):
             print(index)
 
             location = tempdf["Location"][index]
