@@ -77,25 +77,31 @@ def relativeDistFilesToDict(distAddressL):
 def scoreDictToZMatrix(scoreDict, relativeDistDict):
     '''Converts a dictionary of alignment scores (where keys are
     ascension numbers) to a matrix of Z scores we can input into
-    sklearn. Columns are ORfs, rows are ascension numbers.'''
+    sklearn. Columns are ORfs, rows are ascension numbers. Also returns
+    a relativeDistL with the distances corresponding to each row
+    (indexes are the same)'''
     scoreMatL = []
     relativeDistL = []
+
+    # if we have all ORF scores and location for an ascNum
     for ascNum in scoreDict.keys():
         if len(scoreDict[ascNum]) == NUMOFORFs:
             if ascNum in relativeDistDict.keys():
                 scoreMatL.append(list(scoreDict[ascNum]))
                 relativeDistL.append(relativeDistDict[ascNum])
     scoreMat = np.array(scoreMatL)
-    # return stats.zscore(scoreMat, axis=0)
+
+    # normalize scores in matrix (make them Z scores)
     scaler = StandardScaler()
     scaler.fit(scoreMat)
 
     return scaler.transform(scoreMat), relativeDistL
 
-# def PCAZMatrix(ZMatrix):
-
 
 def PCAAnalysis(ZMatrix):
+    '''Runs a PCA analysis on our ZMatrix, plotting the PCA
+    results in two dimensions, and coloring the plot according
+    to clusters determined  by kMeans'''
 
     kmeansLabels = kMeans(ZMatrix, 4)
     pca = PCA(n_components=2)
@@ -131,7 +137,51 @@ def kMeans(X, components):
     return kmeans.labels_
 
 
-# def gradientPCA(ZMatrix):
+def gradientPCA(ZMatrix, relativeDistL):
+
+    # run PCA on ZMatrix
+    pca = PCA(n_components=2)
+    principalComponents = pca.fit_transform(ZMatrix)
+    principalComponents = principalComponents.tolist()
+
+    finalPrincipalComponents = []
+    finalrelativeDistL = []
+    # get rid of outliers
+    for pcaIndex in range(len(principalComponents)):
+        currentX = principalComponents[pcaIndex][0]
+        currentY = principalComponents[pcaIndex][1]
+        if currentX < 8 and currentY > -2:
+            finalPrincipalComponents.append([currentX, currentY])
+            finalrelativeDistL.append(relativeDistL[pcaIndex])
+
+    principalComponents = finalPrincipalComponents
+    relativeDistL = finalrelativeDistL
+
+    # normalize distance values to between 0 and 1
+    maxDist = max(relativeDistL)
+    normRelativeDistL = []
+    for dist in relativeDistL:
+        normRelativeDistL.append((dist/maxDist, dist/maxDist, dist/maxDist))
+
+    for i in range(len(principalComponents)):
+        principalComponents[i].append(normRelativeDistL)
+    # print(principalComponents[:2])
+    finalDf = pd.DataFrame(data=principalComponents, columns=[
+        'principal component 1', 'principal component 2', 'Colors'])
+
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlabel('PC 1', fontsize=15)
+    ax.set_ylabel('PC 2', fontsize=15)
+    ax.set_title('Covid Meeting', fontsize=20)
+    ax.set_facecolor("red")
+    ax.scatter(finalDf['principal component 1'],
+               finalDf['principal component 2'], c=normRelativeDistL, s=50)
+    # ax.legend(targets)
+    ax.text(7.5, 7.5, "Colors/Batches")
+    ax.grid()
+    fig.show()
+    return
 
 
 def ZScore(scoreDict):
