@@ -22,6 +22,13 @@ address4 = 'outputs1107/ORFN0300000AlignmentScore.csv'
 address5 = 'outputs1107/ORFS0300000AlignmentScore.csv'
 addressL = [address1, address2, address3, address4, address5]
 
+distAddress1 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORF1a0300000AlignmentScore.csv'
+distAddress2 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORF1b0300000AlignmentScore.csv'
+distAddress3 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORF3a0300000AlignmentScore.csv'
+distAddress4 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORFN0300000AlignmentScore.csv'
+distAddress5 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORFS0300000AlignmentScore.csv'
+distAddressL = [distAddress1, distAddress2,
+                distAddress3, distAddress4, distAddress5]
 # Planning
 # 1. Convert csv files to dicts and do z score normalization
 # 2. Convert data into matrices to use sklearn
@@ -32,7 +39,7 @@ NUMOFORFs = 5
 
 
 def csvToScoreDict(addressL):
-    '''Turn the orf csv files into scoreDict format where keys 
+    '''Turn the orf csv files into scoreDict format where keys
     are ascensionNums'''
     scoreDict = {}
     for addressIndex in range(len(addressL)):
@@ -52,20 +59,38 @@ def csvToScoreDict(addressL):
     return scoreDict
 
 
-def scoreDictToZMatrix(scoreDict):
-    '''Converts a dictionary of alignment scores (where keys are 
+def relativeDistFilesToDict(distAddressL):
+    """turn relative distance files into a python dictionary where 
+    keys are ascension numbers and values are relative distance to Wuhan.
+    Duplicates were removed by default."""
+    relativeDistDict = {}
+    for addressIndex in range(len(distAddressL)):
+        address = distAddressL[addressIndex]
+        currentDF = pd.read_csv(address)
+        currentRelativeDistDict = dict(
+            zip(currentDF['AscensionNum'].tolist(),
+                currentDF['relativeDistance'].tolist()))
+        relativeDistDict.update(currentRelativeDistDict)
+    return relativeDistDict
+
+
+def scoreDictToZMatrix(scoreDict, relativeDistDict):
+    '''Converts a dictionary of alignment scores (where keys are
     ascension numbers) to a matrix of Z scores we can input into
     sklearn. Columns are ORfs, rows are ascension numbers.'''
     scoreMatL = []
-    for scoreTup in scoreDict.values():
-        if len(scoreTup) == NUMOFORFs:
-            scoreMatL.append(list(scoreTup))
+    relativeDistL = []
+    for ascNum in scoreDict.keys():
+        if len(scoreDict[ascNum]) == NUMOFORFs:
+            if ascNum in relativeDistDict.keys():
+                scoreMatL.append(list(scoreDict[ascNum]))
+                relativeDistL.append(relativeDistDict[ascNum])
     scoreMat = np.array(scoreMatL)
     # return stats.zscore(scoreMat, axis=0)
     scaler = StandardScaler()
     scaler.fit(scoreMat)
 
-    return scaler.transform(scoreMat)
+    return scaler.transform(scoreMat), relativeDistL
 
 # def PCAZMatrix(ZMatrix):
 
@@ -106,7 +131,7 @@ def kMeans(X, components):
     return kmeans.labels_
 
 
-def gradientPCA(ZMatrix):
+# def gradientPCA(ZMatrix):
 
 
 def ZScore(scoreDict):
