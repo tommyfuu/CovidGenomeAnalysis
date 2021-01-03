@@ -74,7 +74,22 @@ def relativeDistFilesToDict(distAddressL):
     return relativeDistDict
 
 
-def scoreDictToZMatrix(scoreDict, relativeDistDict):
+def relativeDistFilesToContinentDict(distAddressL):
+    """turn relative distance files into a python dictionary where 
+    keys are ascension numbers and values are relative distance to Wuhan.
+    Duplicates were removed by default."""
+    relativeDistContDict = {}
+    for addressIndex in range(len(distAddressL)):
+        address = distAddressL[addressIndex]
+        currentDF = pd.read_csv(address)
+        currentRelativeDistDict = dict(
+            zip(currentDF['AscensionNum'].tolist(),
+                currentDF['continentCode'].tolist()))
+        relativeDistContDict.update(currentRelativeDistDict)
+    return relativeDistContDict
+
+
+def scoreDictToZMatrix(scoreDict, relativeDistDict, relativeDistContDict):
     '''Converts a dictionary of alignment scores (where keys are
     ascension numbers) to a matrix of Z scores we can input into
     sklearn. Columns are ORfs, rows are ascension numbers. Also returns
@@ -82,6 +97,9 @@ def scoreDictToZMatrix(scoreDict, relativeDistDict):
     (indexes are the same)'''
     scoreMatL = []
     relativeDistL = []
+    continentCodeL = []
+    CONTINENTCONVERT = {"AS": 0, "NorthA": 1, "SA": 2,
+                        "AF": 3, "OC": 4, "EU": 5, "AC": 6}
 
     # if we have all ORF scores and location for an ascNum
     for ascNum in scoreDict.keys():
@@ -89,13 +107,16 @@ def scoreDictToZMatrix(scoreDict, relativeDistDict):
             if ascNum in relativeDistDict.keys():
                 scoreMatL.append(list(scoreDict[ascNum]))
                 relativeDistL.append(relativeDistDict[ascNum])
+                print(relativeDistContDict[ascNum])
+                continentCodeL.append(
+                    CONTINENTCONVERT[relativeDistContDict[ascNum]])
     scoreMat = np.array(scoreMatL)
 
     # normalize scores in matrix (make them Z scores)
     scaler = StandardScaler()
     scaler.fit(scoreMat)
 
-    return scaler.transform(scoreMat), relativeDistL
+    return scaler.transform(scoreMat), relativeDistL, continentCodeL
 
 
 def PCAAnalysis(ZMatrix):
@@ -178,6 +199,51 @@ def gradientPCA(ZMatrix, relativeDistL):
     ax.scatter(finalDf['principal component 1'],
                finalDf['principal component 2'], c=normRelativeDistL, s=50)
     # ax.legend(targets)
+    ax.text(7.5, 7.5, "Colors/Batches")
+    ax.grid()
+    fig.show()
+    return
+
+
+def continentPCA(ZMatrix, continentCodeL):
+    '''Runs a PCA analysis on our ZMatrix, plotting the PCA
+    results in two dimensions, and coloring the plot according
+    to clusters determined  by kMeans'''
+
+    pca = PCA(n_components=2)
+    principalComponents = pca.fit_transform(ZMatrix)
+    principalComponents = principalComponents.tolist()
+
+    # get rid of outliers
+    finalPrincipalComponents = []
+    finalcontinentCodeL = []
+    for pcaIndex in range(len(principalComponents)):
+        currentX = principalComponents[pcaIndex][0]
+        currentY = principalComponents[pcaIndex][1]
+        if currentX < 8 and currentY > -2:
+            finalPrincipalComponents.append([currentX, currentY])
+            finalcontinentCodeL.append(continentCodeL[pcaIndex])
+
+    principalComponents = finalPrincipalComponents
+    continentCodeL = finalcontinentCodeL
+
+    for i in range(len(principalComponents)):
+        principalComponents[i].append(continentCodeL[i])
+    finalDf = pd.DataFrame(data=principalComponents, columns=[
+        'principal component 1', 'principal component 2', 'Batch'])
+
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlabel('PC 1', fontsize=15)
+    ax.set_ylabel('PC 2', fontsize=15)
+    ax.set_title('Covid Meeting', fontsize=20)
+    targets = [0, 1, 2, 3, 4, 5, 6]
+    colors = ['r', 'b', 'y', 'green', 'black', 'purple', 'cyan']
+    for target, color in zip(targets, colors):
+        indicesToKeep = finalDf['Batch'] == target
+        ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1'],
+                   finalDf.loc[indicesToKeep, 'principal component 2'], c=color, s=50)
+    ax.legend(targets)
     ax.text(7.5, 7.5, "Colors/Batches")
     ax.grid()
     fig.show()

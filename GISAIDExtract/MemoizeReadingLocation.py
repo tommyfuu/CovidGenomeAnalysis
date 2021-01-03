@@ -51,6 +51,8 @@ def readLocation():
                     countryCode = longlat.raw['address']['country_code']
                     continentCode = country_alpha2_to_continent_code(
                         countryCode.upper())
+                    if continentCode == "NA":
+                        continentCode = "NorthA"
                     if type(currentGeo) != float:
                         memoizedDict[location] = (distance(
                             originPoint, latitudeLongitude), currentGeo, countryCode, continentCode)
