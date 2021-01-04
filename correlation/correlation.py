@@ -1,10 +1,8 @@
+'''
+'''
 import numpy as np
 import pandas as pd
-from scipy import stats
-from sklearn.preprocessing import StandardScaler
-
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
+from clustering import *
 
 import matplotlib.pyplot as plt
 
@@ -24,6 +22,11 @@ distAddressL = [distAddress1, distAddress2, distAddress3, distAddress4, distAddr
 
 ORFL = ['ORF1a', 'ORF1b', 'ORF3a', 'ORFN', 'ORFS']
 NUMOFORFs = 5
+
+scoreDict = csvToScoreDict(addressL)
+relativeDistDict = relativeDistFilesToDict(distAddressL)
+relativeDistContDict = relativeDistFilesToContinentDict(distAddressL)
+zscoreMatrix, relativeDistL, continentCodeL = scoreDictToZMatrix(scoreDict, relativeDistDict, relativeDistContDict)
 
 def plottingCorrelation():
     '''Plots the graph of relative distance vs alignment score for each ORF'''
@@ -58,3 +61,24 @@ def plottingCorrelation():
         plt.ylabel("Alignment Score")
         plt.savefig(outputFileName)
         plt.close()
+
+def plotByAvgZScore():
+    avgZScoreL = np.mean(zscoreMatrix, axis = 1)
+    plt.plot(relativeDistL, avgZScoreL, "ro")
+    plt.suptitle("Plot by Average Z Score")
+    plt.xlabel("Relative Distance (km)")
+    plt.ylabel("Normalized Average Alignment Score")
+    plt.savefig("avgZScore.png")
+    plt.close()
+
+def plotWithColors():
+    avgZScoreL = np.mean(zscoreMatrix, axis = 1)
+    
+    plt.scatter(relativeDistL, avgZScoreL, s = 20, c = continentCodeL)
+    # plt.legend()
+
+    plt.suptitle("Plot by Average Z Score")
+    plt.xlabel("Relative Distance (km)")
+    plt.ylabel("Normalized Average Alignment Score")
+    plt.savefig("./plots/colors.png")
+    plt.close()
