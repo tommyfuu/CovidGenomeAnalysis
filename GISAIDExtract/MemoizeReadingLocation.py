@@ -4,6 +4,7 @@ import csv
 from geopy.exc import GeocoderTimedOut
 from geopy.geocoders import Nominatim
 from math import radians, cos, sin, asin, sqrt
+from pycountry_convert import country_alpha2_to_continent_code, country_name_to_country_alpha2
 
 # Store a list of file names
 address1 = 'outputs1107/ORF1a0300000AlignmentScore.csv'
@@ -22,14 +23,16 @@ def readLocation():
     # index = 0
     for fileName in alignScores:
         tempdf = pd.read_csv(fileName)
-        outfileName = "relativeDist" + fileName
+        outfileName = "relativeDistAll" + fileName
         # initialize
         geoLocation = []
         relativeDistance = []
         ascensionNumL = []
+        countryCodeL = []
+        continentCodeL = []
         # get relative distance
-        for index in range(1000):
-            # for index in range(len(tempdf["Location"])):
+        # for index in range(1000):
+        for index in range(len(tempdf["Location"])):
             print(index)
 
             location = tempdf["Location"][index]
@@ -42,19 +45,31 @@ def readLocation():
                 if currentGeo != None:
                     latitudeLongitude = (
                         currentGeo.latitude, currentGeo.longitude)
+                    geolocator = Nominatim(user_agent="your_app_name")
+                    longlat = geolocator.reverse(
+                        [currentGeo.latitude, currentGeo.longitude])
+                    countryCode = longlat.raw['address']['country_code']
+                    continentCode = country_alpha2_to_continent_code(
+                        countryCode.upper())
+                    if continentCode == "NA":
+                        continentCode = "NorthA"
                     if type(currentGeo) != float:
                         memoizedDict[location] = (distance(
-                            originPoint, latitudeLongitude), currentGeo)
+                            originPoint, latitudeLongitude), currentGeo, countryCode, continentCode)
                 else:
-                    memoizedDict[location] = (0, currentGeo)
+                    memoizedDict[location] = (
+                        0, currentGeo, countryCode, continentCode)
             relativeDistance.append(memoizedDict[location][0])
             geoLocation.append(memoizedDict[location][1])
-
+            countryCodeL.append(memoizedDict[location][2])
+            continentCodeL.append(memoizedDict[location][3])
         # Now add the column to dataframe
         currentOutputDF = pd.DataFrame(
             {"geoLocation": geoLocation,
              "relativeDistance": relativeDistance,
-             "AscensionNum": ascensionNumL
+             "AscensionNum": ascensionNumL,
+             "countryCode": countryCodeL,
+             "continentCode": continentCodeL
              })
         # And output the df to a new csv file.
         currentOutputDF.to_csv(outfileName)
