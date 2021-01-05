@@ -118,6 +118,18 @@ def scoreDictToZMatrix(scoreDict, relativeDistDict, relativeDistContDict):
 
     return scaler.transform(scoreMat), relativeDistL, continentCodeL
 
+ 
+def ZMatrixToCsv():
+    scoreDict = csvToScoreDict(addressL)
+    relativeDistDict = relativeDistFilesToDict(distAddressL)
+    relativeDistContDict = relativeDistFilesToContinentDict(distAddressL)
+    ZMatrix = scoreDictToZMatrix(scoreDict, relativeDistDict, relativeDistContDict)
+    
+    labelArr = ['ZScore1', 'ZScore2', 'ZScore3', 'ZScore4', 'ZScore5', 'Distance', 'Continent']
+    arr1 = np.column_stack((ZMatrix[0], ZMatrix[1], ZMatrix[2]))
+    arr = np.vstack((labelArr, arr1))
+    #for i in range(len(ZMatrix)):
+    np.savetxt("ZMatrixOutput.csv", arr, delimiter=',', fmt = '%s')
 
 def PCAAnalysis(ZMatrix):
     '''Runs a PCA analysis on our ZMatrix, plotting the PCA
