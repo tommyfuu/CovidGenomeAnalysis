@@ -22,11 +22,11 @@ address4 = 'outputs1107/ORFN0300000AlignmentScore.csv'
 address5 = 'outputs1107/ORFS0300000AlignmentScore.csv'
 addressL = [address1, address2, address3, address4, address5]
 
-distAddress1 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORF1a0300000AlignmentScore.csv'
-distAddress2 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORF1b0300000AlignmentScore.csv'
-distAddress3 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORF3a0300000AlignmentScore.csv'
-distAddress4 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORFN0300000AlignmentScore.csv'
-distAddress5 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORFS0300000AlignmentScore.csv'
+distAddress1 = "relativeDistOutputs1107/ORF1a0300000AlignmentScore.csv"
+distAddress2 = "relativeDistOutputs1107/ORF1b0300000AlignmentScore.csv"
+distAddress3 = "relativeDistOutputs1107/ORF3a0300000AlignmentScore.csv"
+distAddress4 = "relativeDistOutputs1107/ORFN0300000AlignmentScore.csv"
+distAddress5 = "relativeDistOutputs1107/ORFS0300000AlignmentScore.csv"
 distAddressL = [distAddress1, distAddress2,
                 distAddress3, distAddress4, distAddress5]
 # Planning
