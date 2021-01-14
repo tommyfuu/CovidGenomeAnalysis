@@ -35,9 +35,11 @@ def scaleOrfAlignScore(BigFastaAddress, scoreDict={}):
         # info line: even
         if lineIdx % 2 == 0:
             currentInfo = lines[lineIdx][1:].split('/')
+            print(currentInfo)
             currentLocation = currentInfo[0]
             currentAscensionNum = currentInfo[1]
             currentYear = currentInfo[2][:-1]
+            print(currentYear)
             # go to the next line to get the sequence
             currentSeq = Seq(lines[lineIdx+1][:-1])
             # get orfs for the current case
