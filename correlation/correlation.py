@@ -27,6 +27,7 @@ scoreDict = csvToScoreDict(addressL)
 relativeDistDict = relativeDistFilesToDict(distAddressL)
 relativeDistContDict = relativeDistFilesToContinentDict(distAddressL)
 zscoreMatrix, relativeDistL, continentCodeL = scoreDictToZMatrix(scoreDict, relativeDistDict, relativeDistContDict)
+avgZScoreL = np.mean(zscoreMatrix, axis = 1)
 
 def plottingCorrelation():
     '''Plots the graph of relative distance vs alignment score for each ORF'''
@@ -63,17 +64,14 @@ def plottingCorrelation():
         plt.close()
 
 def plotByAvgZScore():
-    avgZScoreL = np.mean(zscoreMatrix, axis = 1)
     plt.plot(relativeDistL, avgZScoreL, "ro")
     plt.suptitle("Plot by Average Z Score")
     plt.xlabel("Relative Distance (km)")
     plt.ylabel("Normalized Average Alignment Score")
-    plt.savefig("avgZScore.png")
+    plt.savefig("./avgZScore.png")
     plt.close()
 
 def plotWithColors():
-    avgZScoreL = np.mean(zscoreMatrix, axis = 1)
-    
     plt.scatter(relativeDistL, avgZScoreL, s = 20, c = continentCodeL)
     # plt.legend()
 
@@ -82,3 +80,17 @@ def plotWithColors():
     plt.ylabel("Normalized Average Alignment Score")
     plt.savefig("./plots/colors.png")
     plt.close()
+
+def plotByTimeSeries():
+    timeStampL = list(range(1, len(avgZScoreL)+1))
+
+    plt.plot(timeStampL, avgZScoreL, "ro")
+    plt.ylim(-6, 1)
+    plt.savefig("./Plot By Time Series.png")
+
+def outputCSVFile():
+    df = pd.DataFrame()
+    df["Continent"] = continentCodeL
+    df["relativeDistance"] = relativeDistL
+    df["avgZScore"] = avgZScoreL
+    df.to_csv("zscores.csv")

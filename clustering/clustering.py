@@ -134,7 +134,7 @@ def ZMatrixToCsv():
                 'ZScore4', 'ZScore5', 'Distance', 'Continent']
     arr1 = np.column_stack((ZMatrix[0], ZMatrix[1], ZMatrix[2]))
     arr = np.vstack((labelArr, arr1))
-
+    # for i in range(len(ZMatrix)):
     np.savetxt("ZMatrixOutput.csv", arr, delimiter=',', fmt='%s')
 
 
