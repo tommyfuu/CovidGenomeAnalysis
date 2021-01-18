@@ -8,7 +8,7 @@ Developers:\
 Tom Fu [(@tommyfuu)](https://github.com/tommyfuu)\
 Lucy Paddock [(@lucinda-paddock)](https://github.com/lucinda-paddock)\
 Liam Chalk [(@liamchalk00)](https://github.com/liamchalk00)\
-April Zhao [(@abooli)](https://github.com/abooli)\
+April Zhao [(@abooli)](https://github.com/abooli)
 
 Affiliation: Harvey Mudd College BioMakerspace (Polymerspace). \
 Faculty advisor: Dr. Dan Stoebel.
