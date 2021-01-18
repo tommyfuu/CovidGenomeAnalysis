@@ -1,0 +1,48 @@
+---
+title: "Investigating Alignment Scores"
+author: "April Zhao"
+date: "1/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### **Reading in Data**
+First, we have to read in the csv file that was generated using Python. It contained four columns, an index, the continent, a relative distance from Wuhan, and the average Z Score of the alignment across all ORFs.
+```{r data}
+zscores <- read.csv("./zscores.csv")
+head(zscores, 4)
+```
+
+### **Plotting Data**
+
+**Relative Distance vs Average Z Score**  
+First, we present a plot that separates all data points by the continent, and we are plotting the relationship between relative distance and average Z score.
+
+```{r plot1}
+library(ggplot2)
+g <- ggplot(zscores, aes(relativeDistance, avgZScore))
+g <- g + facet_grid(.~Continent)
+g + geom_point()
+```
+
+**Box plot of the Z Scores by continent**
+
+The plot above did not show a storng correlation between the distance from Wuhan and the alignment score. However, we find that the range and variance may be different in different continents. Thus, the plot below attempts to make a box plot of the Z scores by continent.
+
+```{r plot2}
+zscores$Continent <- as.factor(zscores$Continent)
+h <- ggplot(zscores, aes(Continent, avgZScore))
+h <- h + geom_boxplot()
+h
+```
+
+And because there are too many outliers, below is the same plot zoomed-in around 0.
+
+```{r plot 3}
+h + ylim(-0.25, 0)
+```
+
+The plot above shows that the continent `2`, which is South America, has a very low interquartile range while the other continent has alignment scores more spread out.

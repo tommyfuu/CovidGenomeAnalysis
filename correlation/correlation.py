@@ -68,8 +68,9 @@ def plotByAvgZScore():
     plt.suptitle("Plot by Average Z Score")
     plt.xlabel("Relative Distance (km)")
     plt.ylabel("Normalized Average Alignment Score")
-    plt.savefig("./avgZScore.png")
-    plt.close()
+    # plt.savefig("./avgZScore.png")
+    # plt.close()
+    plt.show()
 
 def plotWithColors():
     plt.scatter(relativeDistL, avgZScoreL, s = 20, c = continentCodeL)
@@ -78,12 +79,12 @@ def plotWithColors():
     plt.suptitle("Plot by Average Z Score")
     plt.xlabel("Relative Distance (km)")
     plt.ylabel("Normalized Average Alignment Score")
-    plt.savefig("./plots/colors.png")
-    plt.close()
+    plt.show()
+    # plt.savefig("./plots/colors.png")
+    # plt.close()
 
 def plotByTimeSeries():
     timeStampL = list(range(1, len(avgZScoreL)+1))
-
     plt.plot(timeStampL, avgZScoreL, "ro")
     plt.ylim(-6, 1)
     plt.savefig("./Plot By Time Series.png")
