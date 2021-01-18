@@ -14,6 +14,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
 import matplotlib.pyplot as plt
+from matplotlib.cm import get_cmap
 
 address1 = 'outputs1107/ORF1a0300000AlignmentScore.csv'
 address2 = 'outputs1107/ORF1b0300000AlignmentScore.csv'
@@ -27,7 +28,8 @@ distAddress2 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExt
 distAddress3 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORF3a0300000AlignmentScore.csv'
 distAddress4 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORFN0300000AlignmentScore.csv'
 distAddress5 = '/Users/chenlianfu/Documents/Github/CovidGenomeAnalysis/GISAIDExtract/relativeDistAlloutputs1107/ORFS0300000AlignmentScore.csv'
-distAddressL = [distAddress1, distAddress2, distAddress3, distAddress4, distAddress5]
+distAddressL = [distAddress1, distAddress2,
+                distAddress3, distAddress4, distAddress5]
 # Planning
 # 1. Convert csv files to dicts and do z score normalization
 # 2. Convert data into matrices to use sklearn
@@ -35,6 +37,10 @@ distAddressL = [distAddress1, distAddress2, distAddress3, distAddress4, distAddr
 
 ORFL = ['ORF1a', 'ORF1b', 'ORF3a', 'ORFN', 'ORFS']
 NUMOFORFs = 5
+
+NAME = "tab20"
+CMAP = get_cmap(NAME)
+COLORS = CMAP.colors
 
 
 def csvToScoreDict(addressL):
@@ -106,7 +112,6 @@ def scoreDictToZMatrix(scoreDict, relativeDistDict, relativeDistContDict):
             if ascNum in relativeDistDict.keys():
                 scoreMatL.append(list(scoreDict[ascNum]))
                 relativeDistL.append(relativeDistDict[ascNum])
-                print(relativeDistContDict[ascNum])
                 continentCodeL.append(
                     CONTINENTCONVERT[relativeDistContDict[ascNum]])
     scoreMat = np.array(scoreMatL)
@@ -117,29 +122,45 @@ def scoreDictToZMatrix(scoreDict, relativeDistDict, relativeDistContDict):
 
     return scaler.transform(scoreMat), relativeDistL, continentCodeL
 
+
 def ZMatrixToCsv():
     scoreDict = csvToScoreDict(addressL)
     relativeDistDict = relativeDistFilesToDict(distAddressL)
     relativeDistContDict = relativeDistFilesToContinentDict(distAddressL)
-    ZMatrix = scoreDictToZMatrix(scoreDict, relativeDistDict, relativeDistContDict)
+    ZMatrix = scoreDictToZMatrix(
+        scoreDict, relativeDistDict, relativeDistContDict)
 
-    labelArr = ['Order', 'ZScore1', 'ZScore2', 'ZScore3', 'ZScore4', 'ZScore5', 'Distance', 'Continent']
-    arr1 = np.column_stack((list(range(0, 5606)), ZMatrix[0], ZMatrix[1], ZMatrix[2]))
+    labelArr = ['ZScore1', 'ZScore2', 'ZScore3',
+                'ZScore4', 'ZScore5', 'Distance', 'Continent']
+    arr1 = np.column_stack((ZMatrix[0], ZMatrix[1], ZMatrix[2]))
     arr = np.vstack((labelArr, arr1))
-    np.savetxt("ZMatrixOutput2.csv", arr, delimiter=',', fmt = '%s')
+    # for i in range(len(ZMatrix)):
+    np.savetxt("ZMatrixOutput.csv", arr, delimiter=',', fmt='%s')
+
 
 def PCAAnalysis(ZMatrix):
     '''Runs a PCA analysis on our ZMatrix, plotting the PCA
     results in two dimensions, and coloring the plot according
     to clusters determined  by kMeans'''
 
-    kmeansLabels = kMeans(ZMatrix, 4)
     pca = PCA(n_components=2)
     principalComponents = pca.fit_transform(ZMatrix)
     principalComponents = principalComponents.tolist()
+
+    # get rid of outliers
+    finalPrincipalComponents = []
+    for pcaIndex in range(len(principalComponents)):
+        currentX = principalComponents[pcaIndex][0]
+        currentY = principalComponents[pcaIndex][1]
+        if currentX < 8 and currentY > -2:
+            finalPrincipalComponents.append([currentX, currentY])
+
+    principalComponents = finalPrincipalComponents
+
+    kmeansLabels = kMeans(principalComponents, 4)
+
     for i in range(len(principalComponents)):
         principalComponents[i].append(kmeansLabels[i])
-    print(principalComponents[:2])
     finalDf = pd.DataFrame(data=principalComponents, columns=[
         'principal component 1', 'principal component 2', 'Batch'])
 
@@ -147,7 +168,7 @@ def PCAAnalysis(ZMatrix):
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlabel('PC 1', fontsize=15)
     ax.set_ylabel('PC 2', fontsize=15)
-    ax.set_title('Covid Meeting', fontsize=20)
+    ax.set_title('k means clustering on Covid Genome PCA', fontsize=20)
     targets = [0, 1, 2, 3]
     colors = ['r', 'b', 'y', 'green']
     for target, color in zip(targets, colors):
@@ -155,7 +176,47 @@ def PCAAnalysis(ZMatrix):
         ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1'],
                    finalDf.loc[indicesToKeep, 'principal component 2'], c=color, s=50)
     ax.legend(targets)
-    ax.text(7.5, 7.5, "Colors/Batches")
+    # ax.text(7.5, 7.5, "Colors/Batches")
+    ax.grid()
+    fig.show()
+    return
+
+
+def specifyNumClustering(numOfClusters, ZMatrix):
+
+    pca = PCA(n_components=2)
+    principalComponents = pca.fit_transform(ZMatrix)
+    principalComponents = principalComponents.tolist()
+
+    # get rid of outliers
+    finalPrincipalComponents = []
+    for pcaIndex in range(len(principalComponents)):
+        currentX = principalComponents[pcaIndex][0]
+        currentY = principalComponents[pcaIndex][1]
+        if currentX < 8 and currentY > -2:
+            finalPrincipalComponents.append([currentX, currentY])
+
+    principalComponents = finalPrincipalComponents
+
+    kmeansLabels = kMeans(principalComponents, numOfClusters)
+    for i in range(len(principalComponents)):
+        principalComponents[i].append(kmeansLabels[i])
+    finalDf = pd.DataFrame(data=principalComponents, columns=[
+        'principal component 1', 'principal component 2', 'Batch'])
+
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlabel('PC 1', fontsize=15)
+    ax.set_ylabel('PC 2', fontsize=15)
+    ax.set_title('k means clustering on Covid Genome PCA', fontsize=20)
+    targets = list(range(numOfClusters))
+    colors = COLORS[:numOfClusters]
+    for target, color in zip(targets, colors):
+        indicesToKeep = finalDf['Batch'] == target
+        ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1'],
+                   finalDf.loc[indicesToKeep, 'principal component 2'], c=color, s=50)
+    ax.legend(targets)
+    # ax.text(7.5, 7.5, "Colors/Batches")
     ax.grid()
     fig.show()
     return
@@ -203,12 +264,11 @@ def gradientPCA(ZMatrix, relativeDistL):
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlabel('PC 1', fontsize=15)
     ax.set_ylabel('PC 2', fontsize=15)
-    ax.set_title('Covid Meeting', fontsize=20)
+    ax.set_title('Relative Distance Gradient PCA', fontsize=20)
     ax.set_facecolor("red")
     ax.scatter(finalDf['principal component 1'],
                finalDf['principal component 2'], c=normRelativeDistL, s=50)
-    # ax.legend(targets)
-    ax.text(7.5, 7.5, "Colors/Batches")
+
     ax.grid()
     fig.show()
     return
@@ -245,7 +305,7 @@ def continentPCA(ZMatrix, continentCodeL):
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlabel('PC 1', fontsize=15)
     ax.set_ylabel('PC 2', fontsize=15)
-    ax.set_title('Covid Meeting', fontsize=20)
+    ax.set_title('Continent PCA', fontsize=20)
     targets = [0, 1, 2, 3, 4, 5, 6]
     colors = ['r', 'b', 'y', 'green', 'black', 'purple', 'cyan']
     for target, color in zip(targets, colors):
@@ -253,7 +313,46 @@ def continentPCA(ZMatrix, continentCodeL):
         ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1'],
                    finalDf.loc[indicesToKeep, 'principal component 2'], c=color, s=50)
     ax.legend(targets)
-    ax.text(7.5, 7.5, "Colors/Batches")
+    ax.grid()
+    fig.show()
+    return
+
+
+def timeGradientPCA(ZMatrix):
+
+    # run PCA on ZMatrix
+    pca = PCA(n_components=2)
+    principalComponents = pca.fit_transform(ZMatrix)
+    principalComponents = principalComponents.tolist()
+
+    finalPrincipalComponents = []
+
+    # get rid of outliers
+    for pcaIndex in range(len(principalComponents)):
+        currentX = principalComponents[pcaIndex][0]
+        currentY = principalComponents[pcaIndex][1]
+        if currentX < 8 and currentY > -2:
+            finalPrincipalComponents.append([currentX, currentY])
+
+    principalComponents = finalPrincipalComponents
+
+    timeOrderL = list(range(len(principalComponents)))
+
+    for i in range(len(principalComponents)):
+        principalComponents[i].append(timeOrderL)
+
+    finalDf = pd.DataFrame(data=principalComponents, columns=[
+        'principal component 1', 'principal component 2', 'Colors'])
+
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlabel('PC 1', fontsize=15)
+    ax.set_ylabel('PC 2', fontsize=15)
+    ax.set_title('Relative Distance Gradient PCA', fontsize=20)
+    ax.set_facecolor("white")
+    ax.scatter(finalDf['principal component 1'],
+               finalDf['principal component 2'], c=timeOrderL, s=50)
+
     ax.grid()
     fig.show()
     return
@@ -276,8 +375,6 @@ def ZScore(scoreDict):
             scoreL.append(seqT[1])
         mean = np.mean(scoreL)
         std = np.std(scoreL)
-        print(mean)
-        print(std)
 
         # update sequnce tuples with Z score
         newOrfL = []
@@ -287,3 +384,28 @@ def ZScore(scoreDict):
         scoreDict[orf] = newOrfL
 
     return scoreDict
+
+
+def wrapper(numOfClusters):
+    '''
+    Wrapper function that creates a ZMatrix from the data and 
+runs and displays the results of all our PCA plotting functions.
+    '''
+
+    # format data into a ZMatrix
+    scoreDict = csvToScoreDict(addressL)
+    relativeDistDict = relativeDistFilesToDict(distAddressL)
+    relativeDistContDict = relativeDistFilesToContinentDict(distAddressL)
+    ZMatrix, relativeDistL, continentCodeL = scoreDictToZMatrix(
+        scoreDict, relativeDistDict, relativeDistContDict)
+
+    # PCA then cluster into numClusters
+    specifyNumClustering(numOfClusters, ZMatrix)
+
+    # PCA then color with gradient based on geographic distance
+    gradientPCA(ZMatrix, relativeDistL)
+
+    # PCA then color by continent
+    continentPCA(ZMatrix, continentCodeL)
+
+    return
